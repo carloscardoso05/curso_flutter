@@ -26,6 +26,23 @@ final Map<String, List<String>> dados = {
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
+  final int? categoriaFiltro = null;
+
+  Map<String, List<String>> filtrarCategorias(
+      int? categoriaFiltro, Map<String, List<String>> dados) {
+    switch (categoriaFiltro) {
+      case 1:
+        return {'Sobremesas': dados['Sobremesas'] as List<String>};
+      case 2:
+        return {
+          'Pratos Principais': dados['Pratos Principais'] as List<String>};
+      case 3:
+        return {'Aperitivos': dados['Aperitivos'] as List<String>};
+      default:
+        return dados;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -35,10 +52,12 @@ class MainApp extends StatelessWidget {
           ),
           body: Column(
             children: [
-              for (final categoria in dados.keys)
+              for (final categoria
+                  in filtrarCategorias(categoriaFiltro, dados).keys)
                 Categoria(
-                    titulo: categoria,
-                    receitas: dados[categoria] as List<String>)
+                  titulo: categoria,
+                  receitas: dados[categoria] as List<String>,
+                )
             ],
           ),
           floatingActionButton: CircleAvatar(
