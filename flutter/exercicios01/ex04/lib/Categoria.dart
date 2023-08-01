@@ -4,7 +4,7 @@ class Categoria extends StatelessWidget {
   Categoria({super.key, required this.titulo, required this.receitas});
   final String titulo;
   final List<String> receitas;
-
+  
   @override
   Widget build(BuildContext context) {
     return Column(

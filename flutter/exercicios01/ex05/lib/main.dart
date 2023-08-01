@@ -42,8 +42,9 @@ Map<String, List<String>> filtrarCategorias(
   }
 }
 
-Map<String, List<String>> filtrarTextos(String? textoPesquisa, Map<String, List<String>> dados) {
-  if (textoPesquisa != null) {
+Map<String, List<String>> filtrarTextos(
+    String? textoPesquisa, Map<String, List<String>> dados) {
+  if (textoPesquisa == null && textoPesquisa!.isNotEmpty) {
     dados.forEach((categoria, receitas) {
       receitas.removeWhere((receita) =>
           !receita.toLowerCase().contains(textoPesquisa.toLowerCase()));
@@ -53,8 +54,10 @@ Map<String, List<String>> filtrarTextos(String? textoPesquisa, Map<String, List<
 }
 
 // filtra os dados por categoria e por texto
-final Map<String, List<String>> categoriasFiltradas = filtrarCategorias(categoriaFiltro, dados);
-final Map<String, List<String>> receitasFiltradas = filtrarTextos(textoPesquisa, categoriasFiltradas);
+final Map<String, List<String>> categoriasFiltradas =
+    filtrarCategorias(categoriaFiltro, dados);
+final Map<String, List<String>> receitasFiltradas =
+    filtrarTextos(textoPesquisa, categoriasFiltradas);
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -63,26 +66,30 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-          appBar: AppBar(
-            title: const Text('Minhas receitas'),
+        appBar: AppBar(
+          title: const Text('Minhas receitas'),
+        ),
+        body: Column(
+          children: [
+            for (String categoria in receitasFiltradas.keys)
+              Categoria(
+                titulo: categoria,
+                receitas: dados[categoria] as List<String>,
+              )
+          ],
+        ),
+        floatingActionButton: Ink(
+          decoration: ShapeDecoration(
+              shape: CircleBorder(),
+              color: Theme.of(context).colorScheme.primary),
+          child: IconButton(
+            color: Theme.of(context).colorScheme.inversePrimary,
+            icon: Icon(Icons.add),
+            splashRadius: 20,
+            onPressed: () {},
           ),
-          body: Column(
-            children: [
-              for (final categoria in receitasFiltradas.keys)
-                Categoria(
-                  titulo: categoria,
-                  receitas: dados[categoria] as List<String>,
-                )
-            ],
-          ),
-          floatingActionButton: CircleAvatar(
-            backgroundColor: Colors.blue,
-            radius: 35,
-            child: IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () {},
-            ),
-          )),
+        ),
+      ),
     );
   }
 }
