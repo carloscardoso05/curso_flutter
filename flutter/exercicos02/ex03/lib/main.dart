@@ -21,6 +21,18 @@ final Map<String, List<String>> dados = {
     'Bruschetta de Tomate e Manjericão',
     'Canapés de Salmão com Cream Cheese',
   ],
+  'Massas': [
+    'Macarronada de Camarão',
+    'Spaghetti com Almôndegas',
+    'Lasanha de Frango',
+    'Risotto de Camarão',
+  ],
+  'Bebidas': [
+    'Refrigerante',
+    'Água Mineral',
+    'Vinho',
+    'Suco',
+  ]
 };
 
 //valores de filtro
@@ -44,7 +56,7 @@ Map<String, List<String>> filtrarCategorias(
 
 Map<String, List<String>> filtrarTextos(
     String? textoPesquisa, Map<String, List<String>> dados) {
-  if (textoPesquisa == null && textoPesquisa!.isNotEmpty) {
+  if (textoPesquisa != null && textoPesquisa.isNotEmpty) {
     dados.forEach((categoria, receitas) {
       receitas.removeWhere((receita) =>
           !receita.toLowerCase().contains(textoPesquisa.toLowerCase()));
@@ -79,12 +91,13 @@ class MainApp extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  for (String categoria in receitasFiltradas.keys)
+                  for (final categoria in dados.entries.toList())
+                  // if (categoriaFiltro == )
                     Container(
                       height: 300,
                       child: Categoria(
-                        titulo: categoria,
-                        receitas: dados[categoria] as List<String>,
+                        titulo: categoria.key,
+                        receitas: categoria.value as List<String>,
                       ),
                     )
                 ],
