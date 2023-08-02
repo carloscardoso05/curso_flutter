@@ -20,6 +20,18 @@ final Map<String, List<String>> dados = {
     'Bolinhos de Queijo',
     'Bruschetta de Tomate e Manjericão',
     'Canapés de Salmão com Cream Cheese',
+  ],
+  'Massas': [
+    'Macarronada de Camarão',
+    'Spaghetti com Almôndegas',
+    'Lasanha de Frango',
+    'Risotto de Camarão',
+  ],
+  'Bebidas': [
+    'Refrigerante',
+    'Água Mineral',
+    'Vinho',
+    'Suco',
   ]
 };
 
@@ -70,21 +82,26 @@ class MainApp extends StatelessWidget {
           title: const Text('Minhas receitas'),
         ),
         body: Container(
-          color: Colors.red,
           alignment: Alignment.topCenter,
-          height: MediaQuery.of(context).size.height * 0.70,
-          width: MediaQuery.of(context).size.width * 0.75,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              for (String categoria in receitasFiltradas.keys)
-                Flexible(
-                  child: Categoria(
-                    titulo: categoria,
-                    receitas: dados[categoria] as List<String>,
-                  ),
-                )
-            ],
+          child: SingleChildScrollView(
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: 800,
+                maxHeight: MediaQuery.of(context).size.height * 0.80,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  for (String categoria in receitasFiltradas.keys)
+                    Flexible(
+                      child: Categoria(
+                        titulo: categoria,
+                        receitas: dados[categoria] as List<String>,
+                      ),
+                    )
+                ],
+              ),
+            ),
           ),
         ),
         floatingActionButton: Ink(
