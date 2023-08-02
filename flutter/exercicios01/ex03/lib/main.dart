@@ -5,7 +5,10 @@ void main() {
   runApp(const MainApp());
 }
 
-final Map<String, List<String>> dados = {
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+static final Map<String, List<String>> dados = {
   'Sobremesas': [
     'Torta de Maçã',
     'Mousse de Chocolate',
@@ -22,9 +25,6 @@ final Map<String, List<String>> dados = {
     'Canapés de Salmão com Cream Cheese',
   ]
 };
-
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {

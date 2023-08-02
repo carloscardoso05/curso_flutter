@@ -5,74 +5,43 @@ void main() {
   runApp(const MainApp());
 }
 
-final Map<String, List<String>> dados = {
-  'Sobremesas': [
-    'Torta de Maçã',
-    'Mousse de Chocolate',
-    'Pudim de Leite Condensado',
-  ],
-  'Pratos Principais': [
-    'Frango Assado com Batatas',
-    'Espaguete à Bolonhesa',
-    'Risoto de Cogumelos',
-  ],
-  'Aperitivos': [
-    'Bolinhos de Queijo',
-    'Bruschetta de Tomate e Manjericão',
-    'Canapés de Salmão com Cream Cheese',
-  ],
-  'Massas': [
-    'Macarronada de Camarão',
-    'Spaghetti com Almôndegas',
-    'Lasanha de Frango',
-    'Risotto de Camarão',
-  ],
-  'Bebidas': [
-    'Refrigerante',
-    'Água Mineral',
-    'Vinho',
-    'Suco',
-  ]
-};
-
-//valores de filtro
-const int? categoriaFiltro = null;
-const String? textoPesquisa = 'De';
-
-//funções de filtro
-Map<String, List<String>> filtrarCategorias(
-    int? categoriaFiltro, Map<String, List<String>> dados) {
-  switch (categoriaFiltro) {
-    case 1:
-      return {'Sobremesas': dados['Sobremesas'] as List<String>};
-    case 2:
-      return {'Pratos Principais': dados['Pratos Principais'] as List<String>};
-    case 3:
-      return {'Aperitivos': dados['Aperitivos'] as List<String>};
-    default:
-      return dados;
-  }
-}
-
-Map<String, List<String>> filtrarTextos(
-    String? textoPesquisa, Map<String, List<String>> dados) {
-  if (textoPesquisa != null && textoPesquisa.isNotEmpty) {
-    dados.forEach((categoria, receitas) {
-      receitas.removeWhere((receita) =>
-          !receita.toLowerCase().contains(textoPesquisa.toLowerCase()));
-    });
-  }
-  return dados;
-}
-
-// filtra os dados por categoria e por texto
-final Map<String, List<String>> categoriasFiltradas =
-    filtrarCategorias(categoriaFiltro, dados);
-final Map<String, List<String>> receitasFiltradas =
-    filtrarTextos(textoPesquisa, categoriasFiltradas);
-
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
+
+  static final Map<String, List<String>> dados = {
+    'Sobremesas': [
+      'Torta de Maçã',
+      'Mousse de Chocolate',
+      'Pudim de Leite Condensado',
+    ],
+    'Pratos Principais': [
+      'Frango Assado com Batatas',
+      'Espaguete à Bolonhesa',
+      'Risoto de Cogumelos',
+    ],
+    'Aperitivos': [
+      'Bolinhos de Queijo',
+      'Bruschetta de Tomate e Manjericão',
+      'Canapés de Salmão com Cream Cheese',
+    ],
+    'Massas': [
+      'Macarronada de Camarão',
+      'Spaghetti com Almôndegas',
+      'Lasanha de Frango',
+      'Risotto de Camarão',
+    ],
+    'Bebidas': [
+      'Refrigerante',
+      'Água Mineral',
+      'Vinho',
+      'Suco',
+    ]
+  };
+
+  //valores de filtro
+  static const int? categoriaFiltro = null;
+  static const String textoPesquisa = '';
+  static final dadosEntries = dados.entries.toList();
 
   @override
   Widget build(BuildContext context) {
@@ -91,15 +60,20 @@ class MainApp extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  for (final categoria in dados.entries.toList())
-                  // if (categoriaFiltro == )
-                    Container(
-                      height: 300,
-                      child: Categoria(
-                        titulo: categoria.key,
-                        receitas: categoria.value as List<String>,
+                  for (int i = 0; i < dados.length; i++)
+                    if (categoriaFiltro == i + 1 || categoriaFiltro == null)
+                      Container(
+                        height: 300,
+                        child: Categoria(
+                          titulo: dadosEntries[i].key,
+                          receitas: dadosEntries[i]
+                              .value
+                              .where((receita) =>
+                                  receita.contains(textoPesquisa) ||
+                                  textoPesquisa.isEmpty)
+                              .toList(),
+                        ),
                       ),
-                    )
                 ],
               ),
             ),

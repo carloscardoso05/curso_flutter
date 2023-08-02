@@ -26,22 +26,27 @@ final Map<String, List<String>> dados = {
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
-  final int? categoriaFiltro = null;
+  static final Map<String, List<String>> dados = {
+    'Sobremesas': [
+      'Torta de Maçã',
+      'Mousse de Chocolate',
+      'Pudim de Leite Condensado',
+    ],
+    'Pratos Principais': [
+      'Frango Assado com Batatas',
+      'Espaguete à Bolonhesa',
+      'Risoto de Cogumelos',
+    ],
+    'Aperitivos': [
+      'Bolinhos de Queijo',
+      'Bruschetta de Tomate e Manjericão',
+      'Canapés de Salmão com Cream Cheese',
+    ],
+  };
 
-  Map<String, List<String>> filtrarCategorias(
-      int? categoriaFiltro, Map<String, List<String>> dados) {
-    switch (categoriaFiltro) {
-      case 1:
-        return {'Sobremesas': dados['Sobremesas'] as List<String>};
-      case 2:
-        return {
-          'Pratos Principais': dados['Pratos Principais'] as List<String>};
-      case 3:
-        return {'Aperitivos': dados['Aperitivos'] as List<String>};
-      default:
-        return dados;
-    }
-  }
+  //valores de filtro
+  static const int? categoriaFiltro = null;
+  static final dadosEntries = dados.entries.toList();
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +57,15 @@ class MainApp extends StatelessWidget {
           ),
           body: Column(
             children: [
-              for (final categoria
-                  in filtrarCategorias(categoriaFiltro, dados).keys)
-                Categoria(
-                  titulo: categoria,
-                  receitas: dados[categoria] as List<String>,
-                )
+              for (int i = 0; i < dados.length; i++)
+                if (categoriaFiltro == i + 1 || categoriaFiltro == null)
+                  Container(
+                    height: 300,
+                    child: Categoria(
+                      titulo: dadosEntries[i].key,
+                      receitas: dadosEntries[i].value,
+                    ),
+                  ),
             ],
           ),
           floatingActionButton: CircleAvatar(

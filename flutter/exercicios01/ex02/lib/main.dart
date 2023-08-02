@@ -5,24 +5,24 @@ void main() {
   runApp(const MainApp());
 }
 
-  const List<String> sobremesas = [
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  static const List<String> sobremesas = [
     'Torta de Maçã',
     'Mousse de Chocolate',
     'Pudim de Leite Condensado',
   ];
-  const List<String> pratosPrincipais = [
+  static const List<String> pratosPrincipais = [
     'Frango Assado com Batatas',
     'Espaguete à Bolonhesa',
     'Risoto de Cogumelos',
   ];
-  const List<String> aperitivos = [
+  static const List<String> aperitivos = [
     'Bolinhos de Queijo',
     'Bruschetta de Tomate e Manjericão',
     'Canapés de Salmão com Cream Cheese',
   ];
-
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
