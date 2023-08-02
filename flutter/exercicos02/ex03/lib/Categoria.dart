@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'Receita.dart';
 
 class Categoria extends StatelessWidget {
-  Categoria({super.key, required this.titulo, required this.receitas});
+  const Categoria({super.key, required this.titulo, required this.receitas});
   final String titulo;
   final List<String> receitas;
+
+  static final Map<String, IconData> icones = {
+    'Sobremesas': Icons.icecream_outlined,
+    'Pratos Principais': Icons.restaurant,
+    'Aperitivos': Icons.kebab_dining_outlined,
+    'Massas': Icons.dinner_dining_outlined,
+    'Bebidas': Icons.local_bar_outlined,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -21,19 +30,26 @@ class Categoria extends StatelessWidget {
             ),
           ),
         ),
-        for (final String receita in receitas)
-          Flexible(
-            flex: 1,
-            child: Container(
-              alignment: Alignment.topLeft,
-              constraints: BoxConstraints(minHeight: 100.0),
-              margin: const EdgeInsets.symmetric(horizontal: 50),
-              child: Text(
-                receita,
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
-          )
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final String receita in receitas)
+                SizedBox(
+                    width: 250,
+                    height: 200,
+                    child: Receita(
+                      receita: receita,
+                      icone: () {
+                        if (icones.keys.contains(titulo)) {
+                          return icones[titulo] as IconData;
+                        }
+                        return Icons.restaurant_menu_outlined;
+                      }(),
+                    ))
+            ],
+          ),
+        )
       ],
     );
   }

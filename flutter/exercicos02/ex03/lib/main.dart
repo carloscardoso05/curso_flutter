@@ -62,7 +62,7 @@ class MainApp extends StatelessWidget {
                 children: [
                   for (int i = 0; i < dados.length; i++)
                     if (categoriaFiltro == i + 1 || categoriaFiltro == null)
-                      Container(
+                      SizedBox(
                         height: 300,
                         child: Categoria(
                           titulo: dadosEntries[i].key,
@@ -81,11 +81,11 @@ class MainApp extends StatelessWidget {
         ),
         floatingActionButton: Ink(
           decoration: ShapeDecoration(
-              shape: CircleBorder(),
+              shape: const CircleBorder(),
               color: Theme.of(context).colorScheme.primary),
           child: IconButton(
             color: Theme.of(context).colorScheme.inversePrimary,
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             splashRadius: 20,
             onPressed: () {},
           ),
@@ -94,4 +94,3 @@ class MainApp extends StatelessWidget {
     );
   }
 }
-//
