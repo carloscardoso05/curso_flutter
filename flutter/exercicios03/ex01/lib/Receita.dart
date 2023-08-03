@@ -32,7 +32,6 @@ class Receita extends StatelessWidget {
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.max,
                 children: [
                   Icon(
                     icone,
