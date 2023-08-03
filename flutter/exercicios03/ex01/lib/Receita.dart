@@ -1,30 +1,52 @@
 import 'package:flutter/material.dart';
 import 'ReceitaDetalhes.dart';
+
 class Receita extends StatelessWidget {
-  const Receita({super.key, required this.titulo, required this.icone, required this.detalhes});
+  const Receita(
+      {super.key,
+      required this.titulo,
+      required this.icone,
+      required this.detalhes});
   final String titulo;
   final String detalhes;
   final IconData icone;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ReceitaDetalhes(receita: titulo, detalhes: detalhes),)),
-      child: Card(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Icon(
-                size: 50,
-                icone,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Material(
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.blue,
+          ),
+          child: InkWell(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ReceitaDetalhes(receita: titulo, detalhes: detalhes),
               ),
-              Text(
-                titulo,
-                style: const TextStyle(fontSize: 18),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Icon(
+                    icone,
+                    size: 50,
+                    color: Colors.white,
+                  ),
+                  Text(
+                    titulo,
+                    style: const TextStyle(fontSize: 18, color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
