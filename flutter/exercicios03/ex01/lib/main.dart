@@ -84,7 +84,7 @@ class _MainAppState extends State<MainApp> {
                           titulo: MainApp.dadosEntries[i].key,
                           receitas: MainApp.dadosEntries[i].value
                               .where((receita) =>
-                                  receita[0].contains(textoPesquisa) ||
+                                  receita[0].toString().toLowerCase().contains(textoPesquisa.toLowerCase()) ||
                                   textoPesquisa.isEmpty)
                               .toList(),
                         ),
