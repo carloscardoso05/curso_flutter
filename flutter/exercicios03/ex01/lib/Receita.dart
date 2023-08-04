@@ -19,16 +19,18 @@ class Receita extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: Colors.blue,
+            color: Colors.blue.shade500,
           ),
           child: InkWell(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    ReceitaDetalhes(receita: titulo, detalhes: detalhes),
-              ),
-            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ReceitaDetalhes(titulo: titulo, detalhes: detalhes),
+                ),
+              );
+            },
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'main.dart' show MainApp;
+import 'CarrinhoDados.dart';
 
 class ReceitaDetalhes extends StatelessWidget {
   const ReceitaDetalhes(
-      {super.key, required this.receita, required this.detalhes});
-  final String receita;
+      {super.key, required this.titulo, required this.detalhes});
+  final String titulo;
   final String detalhes;
 
   @override
@@ -38,7 +39,7 @@ class ReceitaDetalhes extends StatelessWidget {
             );
           },
         ),
-        title: Text(receita),
+        title: const Text('Detalhes'),
       ),
       body: Center(
         child: Container(
@@ -46,11 +47,11 @@ class ReceitaDetalhes extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 700),
           child: Column(
             children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: Text(
-                  'Detalhes',
-                  style: TextStyle(
+                  titulo,
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -66,6 +67,14 @@ class ReceitaDetalhes extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blue,
+        onPressed: () {
+          produtos.add(titulo);
+          Navigator.pop(context);
+        },
+        child: const Icon(Icons.add_shopping_cart_outlined, fill: 0, color: Colors.white,),
       ),
     );
   }

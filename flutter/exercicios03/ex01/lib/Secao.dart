@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'Receita.dart';
 
-class Categoria extends StatelessWidget {
-  const Categoria({super.key, required this.titulo, required this.receitas});
+class Secao extends StatelessWidget {
+  const Secao({super.key, required this.titulo, required this.receitas});
   final String titulo;
   final List<List<String>> receitas;
 
@@ -16,10 +16,10 @@ class Categoria extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    if (receitas.isNotEmpty) {
+      return Column(
       children: [
-        Flexible(
-          flex: 2,
+        Expanded(
           child: Center(
             child: Text(
               titulo,
@@ -53,5 +53,9 @@ class Categoria extends StatelessWidget {
         )
       ],
     );
+    }
+    else {
+      return Container();
+    }
   }
 }
