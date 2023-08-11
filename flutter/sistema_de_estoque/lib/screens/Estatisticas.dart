@@ -26,7 +26,7 @@ class _EstatisticasState extends State<Estatisticas> {
   double get valorTotal {
     double valorTotal = 0;
     for (Produto produto in widget.produtos) {
-      valorTotal += produto.preco;
+      valorTotal += produto.preco * produto.quantidade;
     }
     return valorTotal;
   }
