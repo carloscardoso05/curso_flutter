@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:teste_de_conhecimentos/components/Timer.dart';
 import 'package:teste_de_conhecimentos/models/Questao.dart';
-import 'package:teste_de_conhecimentos/screens/FimDeJogo.dart';
+import '../components/Alternativa.dart';
 
 class QuestaoPage extends StatelessWidget {
   const QuestaoPage({
@@ -27,9 +28,9 @@ class QuestaoPage extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 20),
           child: Column(
             children: [
-              Flexible(
+              const Flexible(
                 flex: 1,
-                child: Container(),
+                child: Timer(duration: Duration(seconds: 20)),
               ),
               Flexible(
                 flex: 2,
@@ -56,81 +57,14 @@ class QuestaoPage extends StatelessWidget {
                 ),
               ),
               for ((int, String) resposta in questao.respostas.indexed.toList())
-                Flexible(
-                  flex: 1,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    child: Card(
-                      child: InkWell(
-                        onTap: () {
-                          if (indexQuestao + 1 < questoes.length) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) {
-                                  return QuestaoPage(
-                                    questoes: questoes,
-                                    indexQuestao: indexQuestao + 1,
-                                    acertos:
-                                        questao.respostaCerta == resposta.$1
-                                            ? acertos + 1
-                                            : acertos,
-                                  );
-                                },
-                              ),
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => FimDeJogo(
-                                    acertos:
-                                        questao.respostaCerta == resposta.$1
-                                            ? acertos + 1
-                                            : acertos),
-                              ),
-                            );
-                          }
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 5),
-                          child: ListTile(
-                            leading: AlternativaLetra(
-                                numeroAlternativa: resposta.$1),
-                            title: Text(resposta.$2),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                Alternativa(
+                  indexQuestao: indexQuestao,
+                  questoes: questoes,
+                  resposta: resposta,
+                  acertos: acertos,
                 )
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class AlternativaLetra extends StatelessWidget {
-  const AlternativaLetra({super.key, required this.numeroAlternativa});
-  final int numeroAlternativa;
-  static const List<String> alternativas = ['A', 'B', 'C', 'D', 'E'];
-  @override
-  Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1,
-      child: Container(
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.blue,
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          alternativas[numeroAlternativa],
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
     );
