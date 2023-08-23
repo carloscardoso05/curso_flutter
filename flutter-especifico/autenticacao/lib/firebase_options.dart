@@ -58,7 +58,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAdu-ossEAMS1M24AN3qGBHyx3rNbf32MY',
-    appId: '1:599224600861:android:cb2f1e8d59ff31d22179f4',
+    appId: '1:599224600861:android:86011db249be335a2179f4',
     messagingSenderId: '599224600861',
     projectId: 'curso-flutter-ufpa',
     databaseURL: 'https://curso-flutter-ufpa-default-rtdb.firebaseio.com',
@@ -67,7 +67,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAzUjlpwp8PPTCTEwUw1bLGIf5MOggIJQw',
-    appId: '1:599224600861:ios:cae5948f2d25f3782179f4',
+    appId: '1:599224600861:ios:02e0596fce31f6432179f4',
     messagingSenderId: '599224600861',
     projectId: 'curso-flutter-ufpa',
     databaseURL: 'https://curso-flutter-ufpa-default-rtdb.firebaseio.com',
