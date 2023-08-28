@@ -1,10 +1,11 @@
-import 'package:app_projetos/models/RolesEnum.dart';
+import 'package:app_projetos/models/ProjectModel.dart';
 import 'package:app_projetos/models/UserModel.dart';
 import 'package:app_projetos/screens/EditUserPage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:app_projetos/screens/ProfilePage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import '../utilities/DateTimeFormat.dart';
+import '../widgets/ShowProjectUser.dart';
 
 class ProjectsPage extends StatefulWidget {
   ProjectsPage({super.key, required this.uid});
@@ -16,6 +17,7 @@ class ProjectsPage extends StatefulWidget {
 
 class _ProjectsPageState extends State<ProjectsPage> {
   late Stream<ProjectUser?> _projectUserStream;
+  late Stream<List<Project>> _projectsStream;
   @override
   void initState() {
     _projectUserStream = FirebaseDatabase.instance
@@ -26,13 +28,30 @@ class _ProjectsPageState extends State<ProjectsPage> {
         .map(
       (event) {
         final Map? data = event.snapshot.value as Map?;
-        if (data != null) {
-          return ProjectUser.fromJson(data);
-        } else {
+        if (data == null) {
           return null;
         }
+        return ProjectUser.fromJson(data);
       },
     );
+    _projectsStream = FirebaseDatabase.instance
+        .ref()
+        .child('projects')
+        .orderByChild('managerId')
+        .equalTo(widget.uid)
+        .onValue
+        .map(
+      (event) {
+        final Map? data = event.snapshot.value as Map?;
+        if (data == null) {
+          return [];
+        }
+        return data.values
+            .map((projectJson) => Project.fromJson(projectJson))
+            .toList();
+      },
+    );
+
     super.initState();
   }
 
@@ -42,15 +61,16 @@ class _ProjectsPageState extends State<ProjectsPage> {
       appBar: AppBar(
         title: const Text('Projetos'),
         actions: [
-          TextButton(
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-            },
-            child: const Text(
-              'Sair',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(uid: widget.uid),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.person)),
         ],
       ),
       body: Container(
@@ -87,98 +107,91 @@ class _ProjectsPageState extends State<ProjectsPage> {
             } else {
               return Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: ShowProjectUser(
-                      user: user,
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        style: const ButtonStyle(
-                            backgroundColor:
-                                MaterialStatePropertyAll(Colors.red)),
-                        onPressed: () async {
-                          final DatabaseReference ref = FirebaseDatabase
-                              .instance
-                              .ref()
-                              .child('users')
-                              .child(widget.uid);
-                          await ref.remove();
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 10),
-                          child: Text('Apagar dados'),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  EditUserPage(uid: widget.uid, user: user),
+                  StreamBuilder<List<Project>>(
+                    stream: _projectsStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+                      final List<Project> projects = snapshot.data!;
+                      if (projects.isNotEmpty) {
+                        final double deliveredProjects = projects
+                                .where((project) => project.delivered)
+                                .length /
+                            projects.length;
+                        return Column(
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.bar_chart_outlined),
+                              title: Text(
+                                  'Projetos gerenciados no momento: ${projects.length}'),
                             ),
-                          );
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 10),
-                          child: Text('Editar dados'),
-                        ),
-                      ),
-                    ],
-                  ),
+                            ListTile(
+                              leading: const Icon(Icons.percent_rounded),
+                              title: Text(
+                                  'Taxa de projetos entregues: ${deliveredProjects * 100}%'),
+                            ),
+                            ...projects.map((Project project) {
+                              bool isLate = !project.delivered &&
+                                  project.deliverDate.isBefore(DateTime.now());
+                              bool isOngoing = !project.delivered &&
+                                  project.deliverDate.isAfter(DateTime.now());
+                              //Icone de entrega
+                              Icon deliverIcon = () {
+                                if (isOngoing) {
+                                  return const Icon(Icons.event,
+                                      color: Colors.orange);
+                                } else if (isLate) {
+                                  return const Icon(
+                                    Icons.event_busy,
+                                    color: Colors.red,
+                                  );
+                                }
+                                return const Icon(Icons.event_available,
+                                    color: Colors.green);
+                              }();
+
+                              //Texto de entrega
+                              String deliverText = () {
+                                if (isOngoing) {
+                                  Duration difference = project.deliverDate
+                                      .difference(DateTime.now());
+                                  return 'Entregar em ${difference.inDays} dias';
+                                } else if (isLate) {
+                                  Duration difference = DateTime.now()
+                                      .difference(project.deliverDate);
+                                  return 'Atraso de ${difference.inDays} dias';
+                                }
+                                return 'Entregue';
+                              }();
+
+                              return ListTile(
+                                title: Text(project.name),
+                                leading: deliverIcon,
+                                trailing: Text(deliverText),
+                                subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          'Quantidade de membros: ${project.membersQuantity}'),
+                                      Text(
+                                          'Data de entrega: ${dateFormat.format(project.deliverDate)}'),
+                                    ]),
+                              );
+                            })
+                          ],
+                        );
+                      }
+                      return const Text('Sem projetos');
+                    },
+                  )
                 ],
               );
             }
           },
         ),
       ),
-    );
-  }
-}
-
-class ShowProjectUser extends StatelessWidget {
-  final ProjectUser user;
-  final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
-
-  ShowProjectUser({
-    super.key,
-    required this.user,
-  });
-
-  Map<Role, String> roles = {
-    Role.Desenvolvedor: 'Desenvolvedor',
-    Role.Gerente: 'Gerente',
-    Role.Testador: 'Testador',
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Nome: ${user.name}',
-          style: const TextStyle(fontSize: 16),
-        ),
-        Text(
-          'Cargo: ${roles[user.role]}',
-          style: const TextStyle(fontSize: 16),
-        ),
-        Text(
-          'Entrou em: ${dateFormat.format(user.entryDate)}',
-          style: const TextStyle(fontSize: 16),
-        ),
-        Text(
-          'Ativo: ${user.active ? "Sim" : "Não"}',
-          style: const TextStyle(fontSize: 16),
-        ),
-      ],
     );
   }
 }

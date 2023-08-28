@@ -139,6 +139,7 @@ class _EditUserPageState extends State<EditUserPage> {
                       .child(widget.uid);
 
                   ProjectUser user = ProjectUser(
+                    id: widget.uid,
                     name: _name,
                     role: _role,
                     entryDate: _entryDate,
