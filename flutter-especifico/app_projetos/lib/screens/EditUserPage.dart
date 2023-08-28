@@ -18,8 +18,8 @@ class _EditUserPageState extends State<EditUserPage> {
 
   String _name = '';
   Role _role = Role.Desenvolvedor;
-  DateTime _entryDate = DateTime.now();
   bool _active = false;
+  DateTime _entryDate = DateTime.now();
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
