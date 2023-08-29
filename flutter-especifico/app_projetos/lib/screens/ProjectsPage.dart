@@ -1,5 +1,6 @@
 import 'package:app_projetos/models/ProjectModel.dart';
 import 'package:app_projetos/models/UserModel.dart';
+import 'package:app_projetos/screens/CreateProjectPage.dart';
 import 'package:app_projetos/screens/EditUserPage.dart';
 import 'package:app_projetos/screens/ProfilePage.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -72,7 +73,18 @@ class _ProjectsPageState extends State<ProjectsPage> {
               },
               icon: const Icon(Icons.person)),
         ],
-      ),  
+      ),
+      floatingActionButton: IconButton(
+        icon: const Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CreateProjectPage(),
+            ),
+          );
+        },
+      ),
       body: Container(
         alignment: Alignment.topCenter,
         padding: const EdgeInsets.all(20),
