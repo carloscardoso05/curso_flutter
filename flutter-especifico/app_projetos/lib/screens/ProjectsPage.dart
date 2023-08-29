@@ -1,6 +1,7 @@
 import 'package:app_projetos/models/ProjectModel.dart';
 import 'package:app_projetos/models/UserModel.dart';
 import 'package:app_projetos/screens/CreateProjectPage.dart';
+import 'package:app_projetos/screens/EditProjectPage.dart';
 import 'package:app_projetos/screens/EditUserPage.dart';
 import 'package:app_projetos/screens/ProfilePage.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -80,7 +81,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CreateProjectPage(),
+              builder: (context) => CreateProjectPage(uid: widget.uid),
             ),
           );
         },
@@ -182,14 +183,26 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                 leading: deliverIcon,
                                 trailing: Text(deliverText),
                                 subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          'Quantidade de membros: ${project.membersQuantity}'),
-                                      Text(
-                                          'Data de entrega: ${dateFormat.format(project.deliverDate)}'),
-                                    ]),
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        'Quantidade de membros: ${project.membersQuantity}'),
+                                    Text(
+                                        'Data de entrega: ${dateFormat.format(project.deliverDate)}'),
+                                  ],
+                                ),
+                                enabled: !project.delivered,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EditProject(
+                                        managerId: user.id,
+                                        project: project,
+                                      ),
+                                    ),
+                                  );
+                                },
                               );
                             })
                           ],
