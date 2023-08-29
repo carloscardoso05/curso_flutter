@@ -72,7 +72,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
               },
               icon: const Icon(Icons.person)),
         ],
-      ),
+      ),  
       body: Container(
         alignment: Alignment.topCenter,
         padding: const EdgeInsets.all(20),
