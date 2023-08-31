@@ -34,7 +34,6 @@ class _SignInPageState extends State<SignInPage> {
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: _email, password: _password);
-      print('login');
     } on FirebaseAuthException catch (error) {
       final String code = error.code;
       checkErrors(code);

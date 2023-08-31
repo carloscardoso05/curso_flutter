@@ -1,141 +1,117 @@
 import 'package:app_projetos/models/ProjectModel.dart';
+import 'package:app_projetos/providers/ProjectFormState.dart';
+import 'package:app_projetos/utilities/DateTimeFormat.dart';
+import 'package:app_projetos/widgets/SpacedColumn.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../utilities/DateTimeFormat.dart';
-
-class CreateProjectPage extends StatefulWidget {
+class CreateProjectPage extends StatelessWidget {
   CreateProjectPage({super.key, required this.uid});
   String uid;
 
   @override
-  State<CreateProjectPage> createState() => _CreateProjectPageState();
-}
-
-class _CreateProjectPageState extends State<CreateProjectPage> {
-  String _name = '';
-  int _membersQuantity = 1;
-  String? _quantityError;
-  String? _nameError;
-  DateTime _deliverDate = DateTime.now();
-  bool validData() {
-    return _quantityError == null && _nameError == null && _name.isNotEmpty;
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: _deliverDate,
-        firstDate: DateTime(2015, 8),
-        lastDate: DateTime(DateTime.now().year + 2));
-    if (picked != null && picked != _deliverDate) {
-      setState(() {
-        _deliverDate = picked;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('Criar projeto'),
+      ),
       body: Container(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: 'Nome do projeto',
-                errorText: _nameError,
-              ),
-              onChanged: (value) => setState(() {
-                if (value.isEmpty) {
-                  setState(() {
-                    _nameError = 'O nome não pode ser vazio';
-                  });
-                } else {
-                  setState(() {
-                    _nameError == null;
-                    _name = value;
-                  });
-                }
-              }),
-            ),
-            TextFormField(
-              initialValue: '1',
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: 'Quantidade de membros',
-                errorText: _quantityError,
-              ),
-              onChanged: (value) => setState(() {
-                int? quantity = int.tryParse(value);
-                if (quantity == null) {
-                  setState(() {
-                    _quantityError = 'Valor inválido';
-                  });
-                } else if (quantity < 1) {
-                  setState(() {
-                    _quantityError = 'Não pode ser menor do que 1';
-                  });
-                } else {
-                  _quantityError = null;
-                  _membersQuantity = quantity;
-                }
-              }),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(right: 10),
-                  child: Text(
-                    'Data de entrega',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-                OutlinedButton(
-                  onPressed: () => _selectDate(context),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 15,
-                    ),
-                    child: Text(
-                      dateFormat.format(_deliverDate),
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                DatabaseReference ref =
-                    FirebaseDatabase.instance.ref().child('projects').push();
-                String? projectId = ref.key;
-                if (projectId != null && validData()) {
-                  Project project = Project(
-                    id: projectId,
-                    managerId: widget.uid,
-                    name: _name,
-                    deliverDate: _deliverDate,
-                    delivered: false,
-                    membersQuantity: _membersQuantity,
+            ChangeNotifierProvider(
+              create: (context) => ProjectFormState(),
+              child: Consumer<ProjectFormState>(
+                builder: (context, formState, child) {
+                  return SpacedColumn(
+                    space: const EdgeInsets.only(bottom: 20),
+                    children: [
+                      Selector<ProjectFormState, String?>(
+                        builder: (context, nameError, child) {
+                          return TextField(
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              labelText: 'Nome do projeto',
+                              errorText: nameError,
+                            ),
+                            onChanged: (value) => formState.setName(value),
+                          );
+                        },
+                        selector: (context, state) => state.nameError,
+                      ),
+                      Selector<ProjectFormState, String?>(
+                        builder: (context, quantityError, child) {
+                          return TextFormField(
+                            initialValue: '1',
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              labelText: 'Quantidade de membros',
+                              errorText: quantityError,
+                            ),
+                            onChanged: (value) => formState.setQuantity(value),
+                          );
+                        },
+                        selector: (context, state) => state.quantityError,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Text(
+                              'Data de entrega',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                          Selector<ProjectFormState, DateTime>(
+                            selector: (context, state) => state.deliverDate,
+                            builder: (context, deliverDate, child) {
+                              return OutlinedButton(
+                                onPressed: () => formState.selectDate(context),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 15,
+                                  ),
+                                  child: Text(
+                                    dateFormat.format(deliverDate),
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          DatabaseReference ref = FirebaseDatabase.instance
+                              .ref()
+                              .child('projects')
+                              .push();
+                          String? projectId = ref.key;
+                          if (projectId != null && formState.noErrors()) {
+                            Project project = Project(
+                              id: projectId,
+                              managerId: uid,
+                              name: formState.name,
+                              deliverDate: formState.deliverDate,
+                              delivered: formState.delivered,
+                              membersQuantity: formState.membersQuantity,
+                            );
+                            await ref.set(project.toJson());
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: const Text('Adicionar projeto'),
+                      )
+                    ],
                   );
-                  await ref.set(project.toJson());
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('Adicionar projeto'),
-            )
-          ]
-              .map((widget) => Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: widget,
-                  ))
-              .toList(),
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
