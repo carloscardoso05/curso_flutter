@@ -25,6 +25,8 @@ class ProjectFormState extends ChangeNotifier {
   void setName(String value) {
     if (value.isEmpty) {
       nameError = 'Nome não pode ser vazio';
+    } else {
+      nameError = null;
     }
     name = value;
     notifyListeners();
