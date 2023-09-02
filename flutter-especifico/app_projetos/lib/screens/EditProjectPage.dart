@@ -1,35 +1,22 @@
 import 'package:app_projetos/models/ProjectModel.dart';
 import 'package:app_projetos/models/UserModel.dart';
+import 'package:app_projetos/states/EditProjectState.dart';
+import 'package:app_projetos/states/ProjectUserListState.dart';
+import 'package:app_projetos/states/UserState.dart';
+import 'package:app_projetos/widgets/SpacedColumn.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class EditProject extends StatefulWidget {
-  EditProject({super.key, required this.managerId, required this.project});
+  EditProject({super.key, required this.project});
   Project project;
-  String managerId;
 
   @override
   State<EditProject> createState() => _EditProjectState();
 }
 
 class _EditProjectState extends State<EditProject> {
-  late final Stream<List<ProjectUser>> _projectUsersStream;
-  late String managerId;
-  @override
-  void initState() {
-    managerId = widget.managerId;
-    _projectUsersStream =
-        FirebaseDatabase.instance.ref().child('users').onValue.map((event) {
-      final Map? projects = event.snapshot.value as Map?;
-
-      if (projects == null) return [];
-      return projects.values
-          .map((project) => ProjectUser.fromJson(project))
-          .toList();
-    });
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +27,8 @@ class _EditProjectState extends State<EditProject> {
         child: Container(
           width: 300,
           padding: const EdgeInsets.all(20),
-          child: Column(
+          child: SpacedColumn(
+            space: const EdgeInsets.only(bottom: 20),
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -48,85 +36,103 @@ class _EditProjectState extends State<EditProject> {
                 onPressed: () {
                   showDialog(
                     context: context,
-                    builder: (context) => StreamBuilder<List<ProjectUser>>(
-                        stream: _projectUsersStream,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Container();
-                          }
-                          final List<ProjectUser> users = snapshot.data!;
-                          return StatefulBuilder(builder:
-                              (BuildContext context, StateSetter setState) {
-                            return AlertDialog(
-                              title: const Text('Alterar o gerente do projeto'),
-                              content: Container(
-                                padding: const EdgeInsets.all(50),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Padding(
-                                      padding: EdgeInsets.only(right: 10),
-                                      child: Text(
-                                        'Novo gerente',
-                                        style: TextStyle(fontSize: 16),
+                    builder: (context) {
+                      return MultiProvider(
+                          providers: [
+                            ChangeNotifierProvider<EditProjectState>(
+                                create: (context) => EditProjectState(
+                                    managerId:
+                                        context.read<UserState>().user!.uid)),
+                            ChangeNotifierProvider<ProjectUserListState>(
+                                create: (context) => ProjectUserListState()),
+                            ChangeNotifierProvider<UserState>(
+                                create: (context) => UserState()),
+                          ],
+                          builder: (context, child) {
+                            return Consumer<ProjectUserListState>(
+                                builder: (context, userListState, child) {
+                              if (userListState.loading) {
+                                return const CircularProgressIndicator();
+                              }
+                              final List<ProjectUser> users =
+                                  userListState.projectUserList;
+                              return StatefulBuilder(builder:
+                                  (BuildContext context, StateSetter setState) {
+                                return Consumer<EditProjectState>(
+                                    builder: (context, state, child) {
+                                  return AlertDialog(
+                                    title: const Text(
+                                        'Alterar o gerente do projeto'),
+                                    content: Container(
+                                      padding: const EdgeInsets.all(50),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Padding(
+                                            padding: EdgeInsets.only(right: 10),
+                                            child: Text(
+                                              'Novo gerente',
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                          ),
+                                          DropdownButton<String>(
+                                            value: users
+                                                .firstWhere((element) =>
+                                                    element.id ==
+                                                    state.managerId)
+                                                .id,
+                                            items: users
+                                                .map(
+                                                  (user) => DropdownMenuItem(
+                                                    value: user.id,
+                                                    child: Text(user.name),
+                                                  ),
+                                                )
+                                                .toList(),
+                                            onChanged: (String? value) =>
+                                                state.setManagerId(value!),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    DropdownButton<String>(
-                                      value: users
-                                          .firstWhere((element) =>
-                                              element.id == managerId)
-                                          .id,
-                                      items: users
-                                          .map(
-                                            (user) => DropdownMenuItem(
-                                              value: user.id,
-                                              child: Text(user.name),
-                                            ),
-                                          )
-                                          .toList(),
-                                      onChanged: (String? value) {
-                                        setState(() {
-                                          managerId = value!;
-                                          // print(managerId);
-                                        });
-                                      },
-                                    ),
-                                    // Text(managerId),
-                                  ],
-                                ),
-                              ),
-                              actionsAlignment: MainAxisAlignment.spaceEvenly,
-                              actions: [
-                                ElevatedButton(
-                                  style: const ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStatePropertyAll(Colors.red),
-                                  ),
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Cancelar'),
-                                ),
-                                ElevatedButton(
-                                  style: const ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStatePropertyAll(Colors.blue),
-                                  ),
-                                  onPressed: () async {
-                                    await FirebaseDatabase.instance
-                                        .ref()
-                                        .child('projects')
-                                        .child(widget.project.id)
-                                        .update({
-                                      'managerId': managerId,
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('Salvar'),
-                                ),
-                              ],
-                            );
+                                    actionsAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    actions: [
+                                      ElevatedButton(
+                                        style: const ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStatePropertyAll(
+                                                  Colors.red),
+                                        ),
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Cancelar'),
+                                      ),
+                                      ElevatedButton(
+                                        style: const ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStatePropertyAll(
+                                                  Colors.blue),
+                                        ),
+                                        onPressed: () async {
+                                          await FirebaseDatabase.instance
+                                              .ref()
+                                              .child('projects')
+                                              .child(widget.project.id)
+                                              .update({
+                                            'managerId': state.managerId,
+                                          });
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('Salvar'),
+                                      ),
+                                    ],
+                                  );
+                                });
+                              });
+                            });
                           });
-                        }),
+                    },
                   );
                 },
                 child: Container(
@@ -160,12 +166,7 @@ class _EditProjectState extends State<EditProject> {
                   ),
                 ),
               )
-            ]
-                .map((widget) => Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: widget,
-                    ))
-                .toList(),
+            ],
           ),
         ),
       ),

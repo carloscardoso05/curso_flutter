@@ -1,25 +1,16 @@
 import 'package:flutter/material.dart';
 
 class ProjectFormState extends ChangeNotifier {
-  String id = '';
-  String managerId = '';
   String name = '';
   DateTime deliverDate = DateTime.now();
   bool delivered = false;
   int membersQuantity = 1;
   String? quantityError;
   String? nameError;
+  bool noErrors = false;
 
-  bool noErrors() => nameError == null && quantityError == null;
-
-  void setId(String value) {
-    id = value;
-    notifyListeners();
-  }
-
-  void setManagerId(String value) {
-    managerId = value;
-    notifyListeners();
+  void validateData() {
+    noErrors = name.isNotEmpty && nameError == null && quantityError == null;
   }
 
   void setName(String value) {
@@ -29,6 +20,7 @@ class ProjectFormState extends ChangeNotifier {
       nameError = null;
     }
     name = value;
+    validateData();
     notifyListeners();
   }
 

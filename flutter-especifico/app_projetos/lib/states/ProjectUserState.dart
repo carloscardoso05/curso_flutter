@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class ProjectUserState extends ChangeNotifier {
   String uid;
-  ProjectUser? user;
+  ProjectUser? projectUser;
   bool loading = true;
 
   ProjectUserState({required this.uid}) {
@@ -14,14 +14,11 @@ class ProjectUserState extends ChangeNotifier {
         .onValue
         .map((event) {
       final Map? data = event.snapshot.value as Map?;
-      if (data == null) {
-        return null;
-      }
-      return ProjectUser.fromJson(data);
+      return data == null ? null : ProjectUser.fromJson(data);
     });
 
-    stream.listen((ProjectUser? newUser) {
-      user = newUser;
+    stream.listen((ProjectUser? newProjectUser) {
+      projectUser = newProjectUser;
       loading = false;
       notifyListeners();
     });

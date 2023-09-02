@@ -1,6 +1,7 @@
 import 'package:app_projetos/firebase_options.dart';
 import 'package:app_projetos/screens/ProjectsPage.dart';
 import 'package:app_projetos/screens/SignInPage.dart';
+import 'package:app_projetos/states/UserState.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,18 +18,17 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: StreamProvider<User?>(
-        create: (context) => FirebaseAuth.instance.authStateChanges(),
-        initialData: null,
+    return ChangeNotifierProvider<UserState>(
+        create: (context) => UserState(),
         builder: (context, child) {
-          User? user = context.watch<User?>();
-          if (user == null) {
-            return const SignInPage();
-          }
-          return ProjectsPage(uid: user.uid);
-        },
-      ),
-    );
+          return MaterialApp(
+            home: Consumer<UserState>(
+              builder: (context, userState, child) {
+                User? user = userState.user;
+                return user == null ? const SignInPage() : const ProjectsPage();
+              },
+            ),
+          );
+        });
   }
 }

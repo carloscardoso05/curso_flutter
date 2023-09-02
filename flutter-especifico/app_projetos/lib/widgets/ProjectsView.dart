@@ -1,5 +1,5 @@
-import 'package:app_projetos/models/UserModel.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:app_projetos/states/ProjectsState.dart';
+import 'package:app_projetos/states/UserState.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/ProjectModel.dart';
@@ -7,16 +7,17 @@ import '../screens/EditProjectPage.dart';
 import '../utilities/DateTimeFormat.dart';
 
 class ProjectsView extends StatelessWidget {
-  ProjectsView({super.key, required this.user});
-  ProjectUser user;
+  const ProjectsView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => _ProjectsState(user: user),
-      child: Column(
+    return ChangeNotifierProvider<ProjectsState>(create: (context) {
+      String uid = context.read<UserState>().user!.uid;
+      return ProjectsState(uid: uid);
+    }, builder: (context, child) {
+      return Column(
         children: [
-          Consumer<_ProjectsState>(
+          Consumer<ProjectsState>(
             builder: (context, state, child) {
               if (state.loading) {
                 return const CircularProgressIndicator();
@@ -91,10 +92,8 @@ class ProjectsView extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => EditProject(
-                                managerId: user.id,
-                                project: project,
-                              ),
+                              builder: (context) =>
+                                  EditProject(project: project),
                             ),
                           );
                         },
@@ -107,37 +106,7 @@ class ProjectsView extends StatelessWidget {
             },
           )
         ],
-      ),
-    );
-  }
-}
-
-class _ProjectsState extends ChangeNotifier {
-  ProjectUser user;
-  List<Project> projects = [];
-  bool loading = true;
-
-  _ProjectsState({required this.user}) {
-    final Stream<List<Project>> stream = FirebaseDatabase.instance
-        .ref()
-        .child('projects')
-        .orderByChild('managerId')
-        .equalTo(user.id)
-        .onValue
-        .map((event) {
-      final Map? data = event.snapshot.value as Map?;
-      if (data == null) {
-        return [];
-      }
-      return data.values
-          .map((projectJson) => Project.fromJson(projectJson))
-          .toList();
-    });
-
-    stream.listen((newProjects) {
-      projects = newProjects;
-      loading = false;
-      notifyListeners();
+      );
     });
   }
 }

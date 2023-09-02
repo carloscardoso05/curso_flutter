@@ -1,39 +1,43 @@
 import 'package:app_projetos/models/UserModel.dart';
-import 'package:app_projetos/providers/ProjectUserState.dart';
+import 'package:app_projetos/states/ProjectUserState.dart';
 import 'package:app_projetos/screens/CreateProjectPage.dart';
 import 'package:app_projetos/screens/ProfilePage.dart';
+import 'package:app_projetos/states/UserState.dart';
 import 'package:app_projetos/widgets/IncompleteData.dart';
 import 'package:app_projetos/widgets/ProjectsView.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ProjectsPage extends StatelessWidget {
-  ProjectsPage({super.key, required this.uid});
-  String uid;
+  const ProjectsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Projetos'),
-        actions: [ProfileButton(uid: uid)],
-      ),
-      floatingActionButton: CreateProjectButton(uid: uid),
-      body: Container(
-        alignment: Alignment.topCenter,
-        padding: const EdgeInsets.all(20),
-        child: ChangeNotifierProvider(
-          create: (context) => ProjectUserState(uid: uid),
-          child: ProjectUserView(uid: uid),
+    return ChangeNotifierProvider<ProjectUserState>(create: (context) {
+      String uid = context.read<UserState>().user!.uid;
+      return ProjectUserState(uid: uid);
+    }, builder: (context, child) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Projetos'),
+          actions: const [ProfileButton()],
         ),
-      ),
-    );
+        floatingActionButton: const CreateProjectButton(),
+        body: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Container(
+            alignment: Alignment.topCenter,
+            padding: const EdgeInsets.all(20),
+            child: const ProjectUserView(),
+          ),
+        ),
+      );
+    });
   }
 }
 
 class ProjectUserView extends StatelessWidget {
-  ProjectUserView({super.key, required this.uid});
-  String uid;
+  const ProjectUserView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,20 +46,15 @@ class ProjectUserView extends StatelessWidget {
         if (state.loading) {
           return const CircularProgressIndicator();
         }
-        final ProjectUser? user = state.user;
-        if (user == null) {
-          return IncompleteData(uid: uid);
-        } else {
-          return ProjectsView(user: user);
-        }
+        final ProjectUser? user = state.projectUser;
+        return user == null ? const IncompleteData() : const ProjectsView();
       },
     );
   }
 }
 
 class CreateProjectButton extends StatelessWidget {
-  CreateProjectButton({super.key, required this.uid});
-  String uid;
+  const CreateProjectButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +64,7 @@ class CreateProjectButton extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CreateProjectPage(uid: uid),
+            builder: (context) => const CreateProjectPage(),
           ),
         );
       },
@@ -74,8 +73,7 @@ class CreateProjectButton extends StatelessWidget {
 }
 
 class ProfileButton extends StatelessWidget {
-  ProfileButton({super.key, required this.uid});
-  String uid;
+  const ProfileButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +83,7 @@ class ProfileButton extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return ProfilePage(uid: uid);
+              return const ProfilePage();
             },
           ),
         );

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../screens/EditUserPage.dart';
+import '../screens/EditProjectUserPage.dart';
 
 class IncompleteData extends StatelessWidget {
-  IncompleteData({super.key, required this.uid});
-  String uid;
+  const IncompleteData({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -18,7 +18,7 @@ class IncompleteData extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (contexto) => EditUserPage(uid: uid),
+                builder: (contexto) => EditProjectUserPage(),
               ),
             );
           },
